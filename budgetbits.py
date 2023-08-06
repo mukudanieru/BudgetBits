@@ -4,15 +4,6 @@ import os
 import sys
 
 
-def clear_terminal():
-    # clear terminal for windows os
-    if os.name == "nt":
-        os.system("cls")
-    # clear terminal for unix-based systems (Linux and macOS)
-    else:
-        os.system("clear")
-
-
 class Accounts:
     user_accounts = {}
 
