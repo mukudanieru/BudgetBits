@@ -1,0 +1,3 @@
+# Ignoring specific files
+__pycache__/
+.vscode/
