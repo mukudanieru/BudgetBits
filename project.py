@@ -1,4 +1,4 @@
-from budgetbits import Accounts, BudgetBits
+from budgetbits import AccountValidator, BudgetBits
 from data import InformationManager
 import sys
 import os
@@ -10,7 +10,7 @@ def main():
     users = info.retrieve()
 
     # login process
-    username = account_validation()
+    username = current_account()
     clear()
 
     if username not in users:
@@ -44,40 +44,9 @@ def main():
             print("Invalid input.")
 
 
-def account_validation() -> str:
-    user = Accounts()
-
-    print("[L]ogin | [R]egister | [E]xit")
-    while True:
-        prompt = input(" >> ").upper()
-        if prompt == "L":
-            username: str = input("Username: ").strip()
-            password: str = input("Password: ").strip()
-            try:
-                validation = user.login_account(username, password)
-            except ValueError as message:
-                print(message)
-            else:
-                if validation:
-                    print("Login successful!")
-                    return username
-                else:
-                    print("Login failed. Incorrect username or password.")
-
-        elif prompt == "R":
-            username: str = input("Username: ").strip()
-            password: str = input("Password: ").strip()
-            try:
-                user.register_account(username, password)
-                print("Registration successful!\nYou may login now.")
-            except ValueError as message:
-                print(message)
-
-        elif prompt == "E":
-            sys.exit()
-
-        else:
-            print("Invalid input.")
+def current_account():
+    account_manager = AccountValidator()
+    return account_manager.account_validator()
 
 
 def register_user(username: str):

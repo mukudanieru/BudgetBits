@@ -4,6 +4,15 @@ import os
 import sys
 
 
+def clear():
+    # clear terminal for windows os
+    if os.name == "nt":
+        os.system("cls")
+    # clear terminal for unix-based systems (Linux and macOS)
+    else:
+        os.system("clear")
+
+
 class Accounts:
     user_accounts = {}
 
@@ -27,28 +36,97 @@ class Accounts:
         """
         This method simply handle the registration process.
         """
+        # username
         if not username or username.isspace():
             raise ValueError("Username cannot be empty. Please try again.")
         elif username in Accounts.user_accounts:
             raise ValueError(
-                f"The username '{username}' is already taken. Please try a different one.")
+                f"The username '{username}' is already taken. Please try a different one."
+            )
+
+        # password
+        if not password or password.isspace():
+            raise ValueError("Password cannot be empty. Try a strong one.")
         Accounts.user_accounts[username] = password
         self.data_manager.save(Accounts.user_accounts)
 
     def login_account(self, username: str, password: str) -> bool:
         if len(Accounts.user_accounts) <= 0:
             raise ValueError(
-                "There isn't currently any account registered. Create an account first.")
+                "There isn't currently any account registered. Create an account first."
+            )
+        elif not username or username.isspace():
+            raise ValueError("Username cannot be empty. Please try again.")
         elif username not in Accounts.user_accounts:
             raise ValueError(
-                f"Username {username} is not currently registered. Create an account first.")
-        elif username in Accounts.user_accounts and Accounts.user_accounts[username] == password:
+                f"Username '{username}' is not currently registered. Create an account first."
+            )
+        elif (
+            username in Accounts.user_accounts
+            and Accounts.user_accounts[username] == password
+        ):
             return True
         return False
 
 
+class AccountValidator(Accounts):
+    def account_validator(self) -> str:
+        print(f"{'[L]ogin | [R]egister | [E]xit':^80}")
+        while True:
+            prompt = input(" >> ").upper()
+            if prompt == "L":
+                if len(AccountValidator.user_accounts) <= 0:
+                    print(
+                        "There isn't currently any account registered. Create an account first."
+                    )
+                else:
+                    if validation := self.login():
+                        return validation
+            elif prompt == "R":
+                self.register()
+            elif prompt == "E":
+                sys.exit()
+            else:
+                print("Invalid input.")
+
+    def login(self):
+        username: str = input("Username: ").strip()
+        password: str = input("Password: ").strip()
+
+        # error/exception
+        try:
+            validation = self.login_account(username, password)
+        except ValueError as message:
+            print(message)
+        else:
+            if validation:
+                print("Login successfully")
+                return username
+            else:
+                print("Login failed. Incorrect username or password")
+
+    def register(self):
+        username: str = input("Username: ").strip()
+        password: str = input("Password: ").strip()
+
+        # error/exception
+        try:
+            self.register_account(username, password)
+            print("Registration successful!\nYou may login now.")
+        except ValueError as message:
+            print(message)
+
+
 class BudgetBits:
-    def __init__(self, username: str, first: str, last: str, monthly_budget: int, expenses: dict, remaining_balance: int) -> None:
+    def __init__(
+        self,
+        username: str,
+        first: str,
+        last: str,
+        monthly_budget: int,
+        expenses: dict,
+        remaining_balance: int,
+    ) -> None:
         """
         BudgetBits is a user-friendly and intuitive expense tracker designed to simplify personal finance
         management. BudgetBits empowers users to take control of their spending, set financial goals, and
@@ -65,7 +143,9 @@ class BudgetBits:
         self.remaining_balance = remaining_balance
 
     def __str__(self) -> str:
-        return f"Current user: {self.username}\nFull name: {self.first + ' ' + self.last}"
+        return (
+            f"Current user: {self.username}\nFull name: {self.first + ' ' + self.last}"
+        )
 
     @property
     def username(self):
@@ -86,7 +166,8 @@ class BudgetBits:
     def first(self, first):
         if not first or first.isspace():
             raise ValueError(
-                "First name cannot be empty or consist of only whitespace.")
+                "First name cannot be empty or consist of only whitespace."
+            )
         self._first = first
 
     @property
@@ -114,7 +195,8 @@ class BudgetBits:
             raise ValueError(f"{monthly_budget} should be a integer.")
         elif monthly_budget <= 0:
             raise ValueError(
-                f"{monthly_budget} is not an ideal monthly budget. It literally means you are broke.")
+                f"{monthly_budget} is not an ideal monthly budget. It literally means you are broke."
+            )
         self._monthly_budget = monthly_budget
 
     @property
@@ -147,7 +229,7 @@ class BudgetBits:
         such as grocies, utilities, entertainment, transportation, etc.
 
         Args:
-            category (str): 
+            category (str):
             amount (str):
             notes (str):
         """
