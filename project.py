@@ -1,5 +1,6 @@
-from budgetbits import AccountValidator, BudgetBits
+from budgetbits import AccountValidator, BudgetBits, clear
 from data import InformationManager
+from time import sleep
 import sys
 import os
 
@@ -23,19 +24,26 @@ def main():
         user = existing_user(users[username])
         print(f"\n{f'Welcome back to BudgetBits, {username}!':^80}")
 
-    clear()
-    print(f"\n{'[P]ersonal | [A]dd | [S]how | [E]xit':^80}\n")
     while True:
+        print(user)
+        print(f"\n{'[P]ersonal | [A]dd | [S]how | [E]xit':^80}\n")
         prompt = input(" >> ").upper()
         if prompt == "P":
-            print(f"{user}\nMonthly budget: {user.monthly_budget}\nUser's expenses: {user.expenses}\nUser's remaining balance: {user.remaining_balance}")
+            print(
+                f"Monthly budget: {user.monthly_budget}\nUser's expenses: {user.expenses}\nUser's remaining balance: {user.remaining_balance}"
+            )
+            prompt = input("(Press [B] to back.) >> ").upper()
+            if prompt == "B":
+                clear()
+            else:
+                sys.exit()
         elif prompt == "A":
-            print(f"{'--- ADDING EXPENSE ---':^80}")
-            category = input("Category: ")
-            amount = int(input("Amount: "))
-            notes = input("NOTES: ")
-            users[username] = user.expense_entry(category, amount, notes)
-            info.save(users)
+            expense_added = adding_expense(user)
+            if expense_added:
+                users[username] = expense_added
+                info.save(users)
+            sleep(3)
+            clear()
         elif prompt == "S":
             print("SOON!")
         elif prompt == "E":
@@ -69,13 +77,18 @@ def existing_user(data):
     )
 
 
-def clear():
-    # clear terminal for windows os
-    if os.name == "nt":
-        os.system("cls")
-    # clear terminal for unix-based systems (Linux and macOS)
-    else:
-        os.system("clear")
+def adding_expense(user):
+    print(f"{'--- ADDING EXPENSE ---':^80}")
+    category: str = input("Category: ")
+    amount: int = int(input("Amount: "))
+    notes: str = input("NOTES: ")
+
+    prompt = input("Are you sure about adding this expense? (Y/N): ").upper()
+    if prompt == "Y":
+        print("Expense addition added.")
+        return user.expense_entry(category, amount, notes)
+    print("Expense addition cancelled.")
+    return False
 
 
 if __name__ == "__main__":

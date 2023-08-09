@@ -1,7 +1,15 @@
-from datetime import datetime
 from data import InformationManager
-import os
+from pyfiglet import figlet_format
+from datetime import datetime
+from time import sleep
 import sys
+import os
+
+
+def budgetbits_title():
+    title = figlet_format("BudgetBits", font="slant",
+                          justify="center", width=80)
+    return title
 
 
 def clear():
@@ -71,19 +79,22 @@ class Accounts:
 
 class AccountValidator(Accounts):
     def account_validator(self) -> str:
-        print(f"{'[L]ogin | [R]egister | [E]xit':^80}")
         while True:
+            clear()
+            print(budgetbits_title())
+            print(f"{'[L]ogin | [R]egister | [E]xit':^80}")
             prompt = input(" >> ").upper()
             if prompt == "L":
-                if len(AccountValidator.user_accounts) <= 0:
-                    print(
-                        "There isn't currently any account registered. Create an account first."
-                    )
+                if validation := self.login():
+                    return validation
+                prompt = input("(Press [R] to retry.) >> ").upper()
+                if prompt == "R":
+                    continue
                 else:
-                    if validation := self.login():
-                        return validation
+                    sys.exit()
             elif prompt == "R":
-                self.register()
+                print(self.register())
+                sleep(3)
             elif prompt == "E":
                 sys.exit()
             else:
@@ -112,9 +123,10 @@ class AccountValidator(Accounts):
         # error/exception
         try:
             self.register_account(username, password)
-            print("Registration successful!\nYou may login now.")
         except ValueError as message:
-            print(message)
+            return message
+        else:
+            return "Registration successful!\nYou may login now."
 
 
 class BudgetBits:
@@ -143,9 +155,7 @@ class BudgetBits:
         self.remaining_balance = remaining_balance
 
     def __str__(self) -> str:
-        return (
-            f"Current user: {self.username}\nFull name: {self.first + ' ' + self.last}"
-        )
+        return budgetbits_title()
 
     @property
     def username(self):
@@ -236,16 +246,17 @@ class BudgetBits:
         # Date
         date = str(datetime.now().date())
 
-        if date not in self.expenses:
-            self.expenses[date] = dict()
+        if category not in self.expenses:
+            self.expenses[category] = dict()
 
         # subtracting the entry from the remaining balance
         self.remaining_balance -= amount
 
-        if category not in self.expenses:
-            self.expenses[date][category] = [
+        if date not in self.expenses[category]:
+            self.expenses[category][date] = [
                 {"amount": amount, "notes": notes}]
         else:
-            self.expenses[date][category] = {"amount": amount, "notes": notes}
+            self.expenses[category][date].append(
+                {"amount": amount, "notes": notes})
 
         return self.__dict__
