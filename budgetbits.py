@@ -1,7 +1,8 @@
 from data import InformationManager
 from pyfiglet import figlet_format
 from datetime import datetime
-from time import sleep
+from tabulate import tabulate
+import calendar
 import sys
 import os
 
@@ -87,20 +88,24 @@ class AccountValidator(Accounts):
             if prompt == "L":
                 if validation := self.login():
                     return validation
-                prompt = input("(Press [R] to retry.) >> ").upper()
-                if prompt == "R":
-                    continue
-                else:
-                    sys.exit()
             elif prompt == "R":
                 print(self.register())
-                sleep(3)
+                prompt = input("(Press [B] to back.) >> ").upper()
+                if prompt == "B":
+                    continue
+                sys.exit()
             elif prompt == "E":
                 sys.exit()
             else:
                 print("Invalid input.")
 
+            prompt = input("(Press [R] to retry.) >> ").upper()
+            if prompt == "R":
+                continue
+            sys.exit()
+
     def login(self):
+        print(f"\n{'--- Logging in an account ---':^80}")
         username: str = input("Username: ").strip()
         password: str = input("Password: ").strip()
 
@@ -117,16 +122,26 @@ class AccountValidator(Accounts):
                 print("Login failed. Incorrect username or password")
 
     def register(self):
-        username: str = input("Username: ").strip()
-        password: str = input("Password: ").strip()
+        while True:
+            clear()
+            print(budgetbits_title())
+            print(f"{'[L]ogin | [R]egister | [E]xit':^80}")
+            print(f"\n{'--- Register an account ---':^80}")
+            username: str = input("Username: ").strip()
+            password: str = input("Password: ").strip()
 
-        # error/exception
-        try:
-            self.register_account(username, password)
-        except ValueError as message:
-            return message
-        else:
-            return "Registration successful!\nYou may login now."
+            prompt = input(
+                "\nAre you sure about your username and password? (Y/N): ").upper()
+            if prompt == "Y":
+                # error/exception
+                try:
+                    self.register_account(username, password)
+                except ValueError as message:
+                    return message
+                else:
+                    return "Registration successful!\nYou may login now."
+            elif prompt == "N":
+                continue
 
 
 class BudgetBits:
@@ -153,6 +168,9 @@ class BudgetBits:
         # user's expenses
         self.expenses = expenses
         self.remaining_balance = remaining_balance
+
+        # others
+        self.date = str(datetime.now().date())
 
     def __str__(self) -> str:
         return budgetbits_title()
@@ -233,6 +251,21 @@ class BudgetBits:
                 "It's sad to say that you exceeded your budget for this.")
         self._remaining_balance = remaining_balance
 
+    def display_information(self):
+        date_object = datetime.strptime(self.date, "%Y-%m-%d")
+        month = calendar.month_name[date_object.month]
+        headers = ["PERSONAL INFORMATION", f"MONTH: {month}"]
+        personal_information = {
+            "USERNAME:": self.username,
+            "FULL NAME:": self.first + " " + self.last,
+            f"CURRENT BUDGET ({month})": f"₱{self.monthly_budget:,}",
+            f"TOTAL EXPENSES ({month})": f"₱{self.monthly_budget - self.remaining_balance:,}",
+            f"REMAINING BALANCE ({month})": f"₱{self.remaining_balance:,}",
+        }
+
+        data = [[key, value] for key, value in personal_information.items()]
+        return tabulate(data, headers=headers, tablefmt="heavy_outline")
+
     def expense_entry(self, category: str, amount: int, notes: str):
         """
         expense_entry (method): This allows the user to categorize their expenses into predefined categories
@@ -243,20 +276,32 @@ class BudgetBits:
             amount (str):
             notes (str):
         """
-        # Date
-        date = str(datetime.now().date())
-
         if category not in self.expenses:
             self.expenses[category] = dict()
 
         # subtracting the entry from the remaining balance
         self.remaining_balance -= amount
 
-        if date not in self.expenses[category]:
-            self.expenses[category][date] = [
+        if self.date not in self.expenses[category]:
+            self.expenses[category][self.date] = [
                 {"amount": amount, "notes": notes}]
         else:
-            self.expenses[category][date].append(
+            self.expenses[category][self.date].append(
                 {"amount": amount, "notes": notes})
 
         return self.__dict__
+
+    def display_expenses(self):
+        if len(self.expenses) <= 0:
+            return "You haven't added any expenses, Press [A]dd to add expenses at home section."
+
+        flattened_data = []
+        for category, data_date in self.expenses.items():
+            for date, transactions in data_date.items():
+                for transaction in transactions:
+                    flattened_data.append(
+                        [category, date, transaction["amount"], transaction["notes"]])
+
+        headers = ["Category", "Date", "Amount", "Notes"]
+
+        return tabulate(flattened_data, headers=headers, tablefmt="grid")
