@@ -13,10 +13,10 @@ def main():
     username = current_account()
 
     if username not in users:
+        clear()
         user = register_user(username)
         users[username] = user.__dict__
         info.save(users)
-        clear()
         print(f"\n{f'Welcome to BudgetBits, {username}!':^80}")
 
     else:
@@ -24,7 +24,7 @@ def main():
         user = existing_user(users[username])
         print(f"\n{f'Welcome back to BudgetBits, {username}!':^80}")
 
-    if update := user.monthly_budget_update(monthly_update):
+    if update := user.monthly_budget_update():
         users[username] = update
         info.save(users)
         clear()
@@ -36,8 +36,7 @@ def main():
         if prompt == "P":
             print(user.display_information())
         elif prompt == "A":
-            expense_added = adding_expense(user)
-            if expense_added:
+            if expense_added := adding_expense(user):
                 users[username] = expense_added
                 info.save(users)
         elif prompt == "S":
@@ -47,11 +46,20 @@ def main():
         else:
             print("Invalid input.")
 
-        prompt = input("(Press [B] to back.) >> ").upper()
-        if prompt == "B":
+        retry('B', 'back')
+
+
+def retry(letter, message):
+    while True:
+        prompt = input(
+            f"(Press [{letter}] to {message} or [E] to exit.) >> ").upper()
+        if prompt == f"{letter}":
             clear()
-        else:
+            break
+        elif prompt == "E":
             sys.exit()
+        else:
+            continue
 
 
 def current_account():
@@ -71,26 +79,37 @@ def existing_user(data):
 
 
 def register_user(username: str):
-
     while True:
         clear()
         print(f"Personal information setup for {username}.")
-        first: str = input("First: ").title()
-        last: str = input("Last: ").title()
-        while True:
-            monthly_budget: int = validate_amount(input("Amount: ₱"))
-            if monthly_budget:
-                break
+        try:
+            first, last = get_valid_names()
+            while True:
+                monthly_budget: int = validate_amount(
+                    input("Monthly budget (for this month): ₱"))
+                if monthly_budget:
+                    break
+            print(
+                "\n[Y]es - (to continue) | [N]o - (to provide your personal information again)")
+            prompt = input(
+                "Are you sure about your personal info? (Y/N) ").upper()
+            if prompt == "Y":
+                clear()
+                return BudgetBits(username, first, last, monthly_budget, {}, monthly_budget)
+            elif prompt == "N":
+                continue
+            else:
+                sys.exit()
 
-        print(
-            "\n[Y]es - (to continue) | [N]o - (to provide your personal information again)")
-        prompt = input("Are you sure about your personal info? (Y/N) ").upper()
-        if prompt == "Y":
-            return BudgetBits(username, first, last, monthly_budget, {}, monthly_budget)
-        elif prompt == "N":
-            continue
-        else:
-            sys.exit()
+        except ValueError as message:
+            print(message)
+            retry('R', 'retry')
+
+
+def get_valid_names():
+    first = validate_name(input("First: ")).title()
+    last = validate_name(input("Last: ")).title()
+    return first, last
 
 
 def adding_expense(user):
@@ -102,7 +121,7 @@ def adding_expense(user):
             break
     notes: str = input("NOTES: ")
 
-    prompt = input("Are you sure about adding this expense? (Y/N): ").upper()
+    prompt = input("\nAre you sure about adding this expense? (Y/N): ").upper()
     if prompt == "Y":
         print("Expense addition added.")
         return user.expense_entry(category, amount, notes)
@@ -110,18 +129,12 @@ def adding_expense(user):
     return False
 
 
-def monthly_update():
-    while True:
-        clear()
-        print("\nUpdate your monthly budget.")
-        new_budget = validate_amount(input("New Monthly Budget: ₱"))
-        if new_budget:
-            prompt = input(
-                f"Are you sure about your new monthly budget ₱{new_budget}? (Y/N) ")
-            if prompt == "Y":
-                return new_budget
-            else:
-                continue
+def validate_name(name):
+    if not name or name.isspace():
+        raise ValueError(
+            "First name cannot be empty or consist of only whitespace."
+        )
+    return name
 
 
 def validate_amount(amount):

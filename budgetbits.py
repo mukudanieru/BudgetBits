@@ -90,19 +90,23 @@ class AccountValidator(Accounts):
                     return validation
             elif prompt == "R":
                 print(self.register())
-                prompt = input("(Press [B] to back.) >> ").upper()
-                if prompt == "B":
-                    continue
-                sys.exit()
             elif prompt == "E":
                 sys.exit()
             else:
                 print("Invalid input.")
 
-            prompt = input("(Press [R] to retry.) >> ").upper()
-            if prompt == "R":
+            self.retry()
+
+    @staticmethod
+    def retry():
+        while True:
+            prompt = input("(Press [B] to back or [E] to exit.) >> ").upper()
+            if prompt == "B":
+                break
+            elif prompt == "E":
+                sys.exit()
+            else:
                 continue
-            sys.exit()
 
     def login(self):
         print(f"\n{'--- Logging in an account ---':^80}")
@@ -306,11 +310,18 @@ class BudgetBits:
 
         return tabulate(flattened_data, headers=headers, tablefmt="grid")
 
-    def monthly_budget_update(self, monthly_update):
-        current_day = 1  # datetime.strptime(self.date, "%Y-%m-%d").day
+    def monthly_budget_update(self):
+        current_day = datetime.strptime(self.date, "%Y-%m-%d").day
         if current_day == 1:
-            new_budget = monthly_update()
-            self.monthly_budget = new_budget
-            self.remaining_balance = new_budget
-
-            return self.__dict__
+            while True:
+                print("\nUpdate your monthly budget.")
+                new_budget = int(input("New Monthly Budget: ₱"))
+                if new_budget:
+                    prompt = input(
+                        f"Are you sure about your new monthly budget ₱{new_budget}? (Y/N) ")
+                    if prompt == "Y":
+                        self.monthly_budget = new_budget
+                        self.remaining_balance = new_budget
+                        return self.__dict__
+                    else:
+                        continue
