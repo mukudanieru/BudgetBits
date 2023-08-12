@@ -305,3 +305,12 @@ class BudgetBits:
         headers = ["Category", "Date", "Amount", "Notes"]
 
         return tabulate(flattened_data, headers=headers, tablefmt="grid")
+
+    def monthly_budget_update(self, monthly_update):
+        current_day = 1  # datetime.strptime(self.date, "%Y-%m-%d").day
+        if current_day == 1:
+            new_budget = monthly_update()
+            self.monthly_budget = new_budget
+            self.remaining_balance = new_budget
+
+            return self.__dict__
