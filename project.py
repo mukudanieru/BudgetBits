@@ -5,6 +5,13 @@ import os
 
 
 def main():
+    """
+    The main function of the BudgetBits expense tracker.
+
+    This function orchestrates the login and registration process, handles user interactions,
+    and manages the overall flow of the BudgetBits application.
+    """
+
     # check the registered users
     info = InformationManager(os.path.join("data", "data.json"))
     users = info.retrieve()
@@ -44,12 +51,24 @@ def main():
         elif prompt == "E":
             sys.exit()
         else:
-            print("Invalid input.")
+            print("\nInvalid input.")
 
         retry('B', 'back')
 
 
-def retry(letter, message):
+def retry(letter: str = 'R', message: str = 'retry'):
+    """
+    Handle user retry choice in the BudgetBits application.
+
+    This function prompts the user to choose between returning to a specific action
+    (e.g., back to the previous menu) or exiting the application.
+
+    Args:
+        letter (str, optional): The letter corresponding to the action (e.g., 'B' for back).
+            Defaults to 'R'.
+        message (str, optional): A message describing the action (e.g., 'back').
+            Defaults to 'retry'.
+    """
     while True:
         prompt = input(
             f"(Press [{letter}] to {message} or [E] to exit.) >> ").upper()
@@ -63,11 +82,29 @@ def retry(letter, message):
 
 
 def current_account():
+    """
+    Perform account validation or registration for the BudgetBits application.
+
+    This function interacts with the AccountValidator class to either validate an existing user's login
+    or facilitate user registration, ensuring the user's account is properly managed.
+
+    Returns:
+        str: The username of the validated or registered user.
+    """
     account_manager = AccountValidator()
     return account_manager.account_validator()
 
 
-def existing_user(data):
+def existing_user(data: dict):
+    """
+    Create a BudgetBits instance for an existing user using provided data.
+
+    This function initializes a BudgetBits object for an existing user using the user's saved data,
+    enabling seamless interaction with the user's expense tracking and management.
+
+    Args:
+        data (dict): User data containing relevant information.
+    """
     return BudgetBits(
         data["_username"],
         data["_first"],
@@ -79,6 +116,16 @@ def existing_user(data):
 
 
 def register_user(username: str):
+    """
+    Perform user registration and setup of personal information for the BudgetBits application.
+
+    This function guides the user through the process of providing personal information, including
+    first and last names, as well as setting a monthly budget. Once the information is validated, a new
+    BudgetBits instance is created for the registered user.
+
+    Args:
+        username (str): The username for the new user.
+    """
     while True:
         clear()
         print(f"Personal information setup for {username}.")
@@ -92,7 +139,7 @@ def register_user(username: str):
             print(
                 "\n[Y]es - (to continue) | [N]o - (to provide your personal information again)")
             prompt = input(
-                "Are you sure about your personal info? (Y/N) ").upper()
+                "Do you want to proceed with this personal information? (Y/N) ").upper()
             if prompt == "Y":
                 clear()
                 return BudgetBits(username, first, last, monthly_budget, {}, monthly_budget)
@@ -107,12 +154,23 @@ def register_user(username: str):
 
 
 def get_valid_names():
-    first = validate_name(input("First: ")).title()
-    last = validate_name(input("Last: ")).title()
+    """Returns the inputted first and last names"""
+    first = validate_name(input("First: "), 'First').title()
+    last = validate_name(input("Last: "), 'Last').title()
     return first, last
 
 
 def adding_expense(user):
+    """
+    Add an expense entry for the user in the BudgetBits application.
+
+    This function guides the user through the process of adding an expense entry, including selecting
+    a category, specifying the amount, and adding optional notes. The entry is validated, and if confirmed,
+    it is added to the user's expense records.
+
+    Args:
+        user (BudgetBits): The BudgetBits instance of the user.
+    """
     print(f"{'--- ADDING EXPENSE ---':^80}")
     category: str = input("Category: ")
     while True:
@@ -121,7 +179,8 @@ def adding_expense(user):
             break
     notes: str = input("NOTES: ")
 
-    prompt = input("\nAre you sure about adding this expense? (Y/N): ").upper()
+    prompt = input(
+        "\nDo you want to proceed with adding this expense? (Y/N): ").upper()
     if prompt == "Y":
         print("Expense addition added.")
         return user.expense_entry(category, amount, notes)
@@ -129,15 +188,34 @@ def adding_expense(user):
     return False
 
 
-def validate_name(name):
+def validate_name(name: str, message: str):
+    """
+    Validate the provided name for BudgetBits personal information.
+
+    This function validates a provided name by checking if it is not empty or composed only of whitespace.
+
+    Args:
+        name (str): The name to be validated.
+    """
     if not name or name.isspace():
         raise ValueError(
-            "First name cannot be empty or consist of only whitespace."
+            f"\n{message} name cannot be empty or consist of only whitespace."
         )
     return name
 
 
 def validate_amount(amount):
+    """
+    Validate the provided amount for BudgetBits expenses.
+
+    This function validates a provided amount by converting it to an integer and checking if it's positive.
+
+    Args:
+        amount (str): The amount to be validated.
+
+    Returns:
+        int: The validated amount.
+    """
     try:
         amount = int(amount.replace(',', '_'))
         if amount <= 0:

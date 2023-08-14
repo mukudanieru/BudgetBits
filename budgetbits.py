@@ -7,13 +7,20 @@ import sys
 import os
 
 
-def budgetbits_title():
+def budgetbits_title() -> str:
+    """Generate a stylized title for the BudgetBits application using ASCII art."""
     title = figlet_format("BudgetBits", font="slant",
                           justify="center", width=80)
     return title
 
 
 def clear():
+    """
+    Clear the terminal screen.
+
+    This function clears the terminal screen based on the operating system.
+    It supports both Windows and Unix-based systems (Linux and macOS).
+    """
     # clear terminal for windows os
     if os.name == "nt":
         os.system("cls")
@@ -60,6 +67,9 @@ class Accounts:
         self.data_manager.save(Accounts.user_accounts)
 
     def login_account(self, username: str, password: str) -> bool:
+        """
+        This method simply handle the login process.
+        """
         if len(Accounts.user_accounts) <= 0:
             raise ValueError(
                 "There isn't currently any account registered. Create an account first."
@@ -79,7 +89,21 @@ class Accounts:
 
 
 class AccountValidator(Accounts):
+    """
+    AccountValidator:
+    A class to handle account validation, login, and registration for the BudgetBits application.
+
+    This class inherits from the Accounts class and provides methods to interact with user accounts,
+    including account validation, login, and registration.
+    """
+
     def account_validator(self) -> str:
+        """
+        Validate accounts, facilitate login, and registration.
+
+        This method provides a user-friendly interface for account validation, login, and registration.
+        Users can choose to log in, register, or exit the application.
+        """
         while True:
             clear()
             print(budgetbits_title())
@@ -98,7 +122,10 @@ class AccountValidator(Accounts):
             self.retry()
 
     @staticmethod
-    def retry():
+    def retry() -> None:
+        """
+        Allow users to retry actions or exit the application.
+        """
         while True:
             prompt = input("(Press [B] to back or [E] to exit.) >> ").upper()
             if prompt == "B":
@@ -108,8 +135,14 @@ class AccountValidator(Accounts):
             else:
                 continue
 
-    def login(self):
-        print(f"\n{'--- Logging in an account ---':^80}")
+    def login(self) -> str:
+        """
+        Perform user login and handle exceptions.
+
+        This method guides users through the login process, handles exceptions,
+        and returns the username of the successfully logged-in user.
+        """
+        print(f"\n{'--- Log in to BudgetBits ---':^80}")
         username: str = input("Username: ").strip()
         password: str = input("Password: ").strip()
 
@@ -117,7 +150,7 @@ class AccountValidator(Accounts):
         try:
             validation = self.login_account(username, password)
         except ValueError as message:
-            print(message)
+            print(f"\n{message}")
         else:
             if validation:
                 print("Login successfully")
@@ -125,7 +158,13 @@ class AccountValidator(Accounts):
             else:
                 print("Login failed. Incorrect username or password")
 
-    def register(self):
+    def register(self) -> str:
+        """
+        Perform user login and handle exceptions.
+
+        This method guides users through the login process, handles exceptions,
+        and returns the username of the successfully logged-in user.
+        """
         while True:
             clear()
             print(budgetbits_title())
@@ -141,9 +180,9 @@ class AccountValidator(Accounts):
                 try:
                     self.register_account(username, password)
                 except ValueError as message:
-                    return message
+                    return f"\n{message}"
                 else:
-                    return "Registration successful!\nYou may login now."
+                    return "\nRegistration successful!\nYou may login now."
             elif prompt == "N":
                 continue
 
@@ -162,6 +201,15 @@ class BudgetBits:
         BudgetBits is a user-friendly and intuitive expense tracker designed to simplify personal finance
         management. BudgetBits empowers users to take control of their spending, set financial goals, and
         make informed budgeting decisions.
+
+        Attributes:
+        username (str): The username of the user.
+        first (str): The user's first name.
+        last (str): The user's last name.
+        monthly_budget (int): The user's monthly budget.
+        expenses (dict): A dictionary containing user's expenses categorized by type.
+        remaining_balance (int): The remaining balance after deducting expenses from the budget.
+        date (str): The current date when the BudgetBits instance is created.
         """
         # user's personal information
         self.username = username
@@ -177,14 +225,17 @@ class BudgetBits:
         self.date = str(datetime.now().date())
 
     def __str__(self) -> str:
+        """Returns a stylized title for the BudgetBits application using ASCII art."""
         return budgetbits_title()
 
     @property
     def username(self):
+        """Get the username."""
         return self._username
 
     @username.setter
-    def username(self, username):
+    def username(self, username: str):
+        """Set the username."""
         if not username or username.isspace():
             raise ValueError(
                 "Username cannot be empty or consist of only whitespace.")
@@ -192,10 +243,12 @@ class BudgetBits:
 
     @property
     def first(self):
+        """Get the first name."""
         return self._first
 
     @first.setter
-    def first(self, first):
+    def first(self, first: str):
+        """Set the first name."""
         if not first or first.isspace():
             raise ValueError(
                 "First name cannot be empty or consist of only whitespace."
@@ -204,10 +257,12 @@ class BudgetBits:
 
     @property
     def last(self):
+        """Get the last name."""
         return self._last
 
     @last.setter
-    def last(self, last):
+    def last(self, last: str):
+        """Set the last name."""
         if not last or last.isspace():
             raise ValueError(
                 "Last name cannot be empty or consist of only whitespace.")
@@ -215,14 +270,14 @@ class BudgetBits:
 
     @property
     def monthly_budget(self):
+        """Get the monthly budget."""
         return self._monthly_budget
 
     @monthly_budget.setter
-    def monthly_budget(self, monthly_budget):
-        """
-        Normal student (high school) - 2,500 to 3,000
-        College student (no dorm) - 5,000 above
-        """
+    def monthly_budget(self, monthly_budget: int):
+        """Set the monthly budget."""
+        # Normal student (high school) - 2,500 to 3,000
+        # College student (no dorm) - 5,000 above
         if not isinstance(monthly_budget, int):
             raise ValueError(f"{monthly_budget} should be a integer.")
         elif monthly_budget <= 0:
@@ -233,10 +288,12 @@ class BudgetBits:
 
     @property
     def expenses(self):
+        """Get the expenses."""
         return self._expenses
 
     @expenses.setter
-    def expenses(self, expenses):
+    def expenses(self, expenses: dict):
+        """Set the expenses."""
         if not isinstance(expenses, dict):
             raise ValueError(
                 "Invalid expenses: Expenses must be a dictionary.")
@@ -244,10 +301,12 @@ class BudgetBits:
 
     @property
     def remaining_balance(self):
+        """Get the remaining balance."""
         return self._remaining_balance
 
     @remaining_balance.setter
-    def remaining_balance(self, remaining_balance):
+    def remaining_balance(self, remaining_balance: int):
+        """Set the remaining balance."""
         if not isinstance(remaining_balance, int):
             raise ValueError(f"{remaining_balance} should be an integer.")
         elif remaining_balance <= 0:
@@ -256,6 +315,13 @@ class BudgetBits:
         self._remaining_balance = remaining_balance
 
     def display_information(self):
+        """
+        Display user's personal finance information in a formatted table.
+
+        Returns:
+            str: A formatted table displaying personal finance information.
+        """
+
         date_object = datetime.strptime(self.date, "%Y-%m-%d")
         month = calendar.month_name[date_object.month]
         headers = ["PERSONAL INFORMATION", f"MONTH: {month}"]
@@ -272,13 +338,12 @@ class BudgetBits:
 
     def expense_entry(self, category: str, amount: int, notes: str):
         """
-        expense_entry (method): This allows the user to categorize their expenses into predefined categories
-        such as grocies, utilities, entertainment, transportation, etc.
+        Record an expense entry with category, amount, and notes.
 
         Args:
-            category (str):
-            amount (str):
-            notes (str):
+            category (str): The category of the expense.
+            amount (int): The amount of the expense.
+            notes (str): Additional notes for the expense.
         """
         if category not in self.expenses:
             self.expenses[category] = dict()
@@ -296,8 +361,14 @@ class BudgetBits:
         return self.__dict__
 
     def display_expenses(self):
+        """
+        Display recorded expenses in a formatted table.
+
+        Returns:
+            str: A formatted table displaying recorded expenses.
+        """
         if len(self.expenses) <= 0:
-            return "You haven't added any expenses, Press [A]dd to add expenses at home section."
+            return "\nYou currently have no recorded expenses. To start tracking your spending, use the [A]dd option in the 'Home' section."
 
         flattened_data = []
         for category, data_date in self.expenses.items():
@@ -311,6 +382,12 @@ class BudgetBits:
         return tabulate(flattened_data, headers=headers, tablefmt="grid")
 
     def monthly_budget_update(self):
+        """
+        Update the monthly budget if the current day is the first day of the month.
+
+        Returns:
+            dict: Updated dictionary of the BudgetBits instance.
+        """
         current_day = datetime.strptime(self.date, "%Y-%m-%d").day
         if current_day == 1:
             while True:
