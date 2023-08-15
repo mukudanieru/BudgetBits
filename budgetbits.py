@@ -196,6 +196,7 @@ class BudgetBits:
         monthly_budget: int,
         expenses: dict,
         remaining_balance: int,
+        last_updated: int
     ) -> None:
         """
         BudgetBits is a user-friendly and intuitive expense tracker designed to simplify personal finance
@@ -223,6 +224,9 @@ class BudgetBits:
 
         # others
         self.date = str(datetime.now().date())
+
+        # if user updated the monthly budget
+        self.last_updated = last_updated
 
     def __str__(self) -> str:
         """Returns a stylized title for the BudgetBits application using ASCII art."""
@@ -282,8 +286,7 @@ class BudgetBits:
             raise ValueError(f"{monthly_budget} should be a integer.")
         elif monthly_budget <= 0:
             raise ValueError(
-                f"{monthly_budget} is not an ideal monthly budget. It literally means you are broke."
-            )
+                f"{monthly_budget} is not a viable monthly budget. It seems insufficient for your financial needs.")
         self._monthly_budget = monthly_budget
 
     @property
@@ -311,7 +314,7 @@ class BudgetBits:
             raise ValueError(f"{remaining_balance} should be an integer.")
         elif remaining_balance <= 0:
             raise ValueError(
-                "It's sad to say that you exceeded your budget for this.")
+                "Unfortunately, you've exceeded your budget limit for this period.")
         self._remaining_balance = remaining_balance
 
     def display_information(self):
@@ -322,8 +325,8 @@ class BudgetBits:
             str: A formatted table displaying personal finance information.
         """
 
-        date_object = datetime.strptime(self.date, "%Y-%m-%d")
-        month = calendar.month_name[date_object.month]
+        current_month = datetime.strptime(self.date, "%Y-%m-%d").month
+        month = calendar.month_name[current_month]
         headers = ["PERSONAL INFORMATION", f"MONTH: {month}"]
         personal_information = {
             "USERNAME:": self.username,
@@ -334,7 +337,7 @@ class BudgetBits:
         }
 
         data = [[key, value] for key, value in personal_information.items()]
-        return tabulate(data, headers=headers, tablefmt="heavy_outline")
+        return tabulate(data, headers=headers, tablefmt="outline")
 
     def expense_entry(self, category: str, amount: int, notes: str):
         """
@@ -381,24 +384,23 @@ class BudgetBits:
 
         return tabulate(flattened_data, headers=headers, tablefmt="grid")
 
-    def monthly_budget_update(self):
+    def monthly_budget_update(self, validation_function):
         """
         Update the monthly budget if the current day is the first day of the month.
 
         Returns:
             dict: Updated dictionary of the BudgetBits instance.
         """
-        current_day = datetime.strptime(self.date, "%Y-%m-%d").day
-        if current_day == 1:
-            while True:
-                print("\nUpdate your monthly budget.")
-                new_budget = int(input("New Monthly Budget: ₱"))
-                if new_budget:
-                    prompt = input(
-                        f"Are you sure about your new monthly budget ₱{new_budget}? (Y/N) ")
-                    if prompt == "Y":
-                        self.monthly_budget = new_budget
-                        self.remaining_balance = new_budget
-                        return self.__dict__
-                    else:
-                        continue
+        current_month = datetime.strptime(self.date, "%Y-%m-%d").month
+
+        if not self.last_updated:
+            self.last_updated = current_month
+
+        if current_month != self.last_updated:
+            new_budget = validation_function()
+            self.monthly_budget = new_budget
+            self.remaining_balance = new_budget
+
+            self.last_updated = current_month
+
+        return self.__dict__

@@ -18,23 +18,23 @@ def main():
 
     # login process
     username = current_account()
+    clear()
 
     if username not in users:
-        clear()
         user = register_user(username)
         users[username] = user.__dict__
         info.save(users)
         print(f"\n{f'Welcome to BudgetBits, {username}!':^80}")
 
     else:
-        clear()
         user = existing_user(users[username])
+
+        clear()
         print(f"\n{f'Welcome back to BudgetBits, {username}!':^80}")
 
-    if update := user.monthly_budget_update():
-        users[username] = update
-        info.save(users)
-        clear()
+        if update := user.monthly_budget_update(monthly_update):
+            users[username] = update
+            info.save(users)
 
     while True:
         print(user)
@@ -56,6 +56,23 @@ def main():
         retry('B', 'back')
 
 
+def monthly_update():
+    while True:
+        print("\nWelcome to a new month!\nTake a moment to update your monthly budget.\n")
+        while True:
+            new_budget: int = validate_amount(input("New Monthly Budget: ₱"))
+            if new_budget:
+                break
+
+        prompt = input(
+            f"Are you sure about your new monthly budget ₱{new_budget}? (Y/N) ")
+        if prompt == "Y":
+            clear()
+            return new_budget
+        else:
+            clear()
+
+
 def retry(letter: str = 'R', message: str = 'retry'):
     """
     Handle user retry choice in the BudgetBits application.
@@ -74,7 +91,7 @@ def retry(letter: str = 'R', message: str = 'retry'):
             f"(Press [{letter}] to {message} or [E] to exit.) >> ").upper()
         if prompt == f"{letter}":
             clear()
-            break
+            return True
         elif prompt == "E":
             sys.exit()
         else:
@@ -112,6 +129,7 @@ def existing_user(data: dict):
         data["_monthly_budget"],
         data["_expenses"],
         data["_remaining_balance"],
+        data["last_updated"]
     )
 
 
@@ -142,7 +160,7 @@ def register_user(username: str):
                 "Do you want to proceed with this personal information? (Y/N) ").upper()
             if prompt == "Y":
                 clear()
-                return BudgetBits(username, first, last, monthly_budget, {}, monthly_budget)
+                return BudgetBits(username, first, last, monthly_budget, {}, monthly_budget, None)
             elif prompt == "N":
                 continue
             else:
@@ -171,6 +189,7 @@ def adding_expense(user):
     Args:
         user (BudgetBits): The BudgetBits instance of the user.
     """
+
     print(f"{'--- ADDING EXPENSE ---':^80}")
     category: str = input("Category: ")
     while True:
@@ -182,10 +201,17 @@ def adding_expense(user):
     prompt = input(
         "\nDo you want to proceed with adding this expense? (Y/N): ").upper()
     if prompt == "Y":
-        print("Expense addition added.")
-        return user.expense_entry(category, amount, notes)
-    print("Expense addition cancelled.")
-    return False
+        try:
+            user_expense = user.expense_entry(category, amount, notes)
+
+        except ValueError as message:
+            print(f"\n{message}")
+            print("\nExpense addition cancelled.")
+            return False
+
+        else:
+            print("\nExpense addition added.")
+            return user_expense
 
 
 def validate_name(name: str, message: str):
