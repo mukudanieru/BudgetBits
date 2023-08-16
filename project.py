@@ -214,7 +214,7 @@ def adding_expense(user):
             return user_expense
 
 
-def validate_name(name: str, message: str):
+def validate_name(name: str, message: str = 'Full'):
     """
     Validate the provided name for BudgetBits personal information.
 
@@ -227,10 +227,11 @@ def validate_name(name: str, message: str):
         raise ValueError(
             f"\n{message} name cannot be empty or consist of only whitespace."
         )
+    name = name.title()
     return name
 
 
-def validate_amount(amount):
+def validate_amount(amount: str):
     """
     Validate the provided amount for BudgetBits expenses.
 
