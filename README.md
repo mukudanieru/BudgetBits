@@ -104,7 +104,7 @@ Do you want to proceed with adding this expense? (Y/N): Y
 _The monthly update:_
 
 ```
-                       Welcome back to BudgetBits, lone!
+                       Welcome back to BudgetBits, [username]!
 
 Welcome to a new month!
 Take a moment to update your monthly budget.
