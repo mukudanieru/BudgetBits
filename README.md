@@ -104,7 +104,7 @@ Do you want to proceed with adding this expense? (Y/N): Y
 _The monthly update:_
 
 ```
-                       Welcome back to BudgetBits, lone!
+                       Welcome back to BudgetBits, [username]!
 
 Welcome to a new month!
 Take a moment to update your monthly budget.
@@ -167,19 +167,20 @@ If you choose **[R]egister**, the application will guide you through the registr
 
 1. Enter your desired username.
 2. Enter your password for the new account.
-3. Provide your personal information:
 
-- First name
-- Last name
-- Monthly budget for the current month
-
-Once you've completed the registration setup, you'll be prompted to confirm your personal information. You can choose to continue with the provided details or restart the registration if needed.
+Once you've completed the registration setup, you may login now.
 
 ### _Login_
 
 After registering, you can choose **[L]ogin** to access your existing account. Enter your username and password to log in.
 
-If you're a returning user, you'll be greeted with a welcome message:
+If you just recently created the account. You'll be prompted to confirm your personal information. You can choose to continue with the provided details or restart the registration if needed:
+
+- First name
+- Last name
+- Monthly budget for the current month
+
+Or if you're a returning user, you'll be greeted with a welcome message:
 
 ```bash
 - Welcome back to BudgetBits, [username]!
