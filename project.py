@@ -48,7 +48,7 @@ def main():
                 info.save(users)
         elif prompt == "S":
             print(user.display_expenses())
-        elif prompt == "E":
+        elif prompt == "E" or prompt == "EXIT":
             sys.exit()
         else:
             print("\nInvalid input.")
@@ -158,13 +158,11 @@ def register_user(username: str):
                 "\n[Y]es - (to continue) | [N]o - (to provide your personal information again)")
             prompt = input(
                 "Do you want to proceed with this personal information? (Y/N) ").upper()
-            if prompt == "Y":
+            if prompt == "Y" or prompt == "" or prompt == "YES":
                 clear()
                 return BudgetBits(username, first, last, monthly_budget, {}, monthly_budget, None)
-            elif prompt == "N":
-                continue
             else:
-                sys.exit()
+                continue
 
         except ValueError as message:
             print(message)
@@ -206,12 +204,13 @@ def adding_expense(user):
 
         except ValueError as message:
             print(f"\n{message}")
-            print("\nExpense addition cancelled.")
-            return False
 
         else:
             print("\nExpense addition added.")
             return user_expense
+
+    print("\nExpense addition cancelled.")
+    return False
 
 
 def validate_name(name: str, message: str = 'Full'):
