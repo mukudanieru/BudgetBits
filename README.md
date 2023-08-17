@@ -180,7 +180,13 @@ If you just recently created the account. You'll be prompted to confirm your per
 - Last name
 - Monthly budget for the current month
 
-Or if you're a returning user, you'll be greeted with a welcome message:
+Once you've completed the registration setup, you'll be prompted to confirm your personal information. You can choose to continue with the provided details or restart the registration if needed.
+
+### _Login_
+
+After registering, you can choose **[L]ogin** to access your existing account. Enter your username and password to log in.
+
+If you're a returning user, you'll be greeted with a welcome message:
 
 ```bash
 - Welcome back to BudgetBits, [username]!
