@@ -11,9 +11,9 @@
 
 **BudgetBits | A CS50P final project**
 
-BudgetBits is an interactive command line interface project that is a user-friendly and intuitive expense tracker designed to simplify personal finance management.
+*Video demo:* https://youtu.be/X_NvwEAKBSw
 
-_Video demo:_ (youtube link)
+BudgetBits is an interactive command line interface project that is a user-friendly and intuitive expense tracker designed to simplify personal finance management.
 
 ## Features
 
